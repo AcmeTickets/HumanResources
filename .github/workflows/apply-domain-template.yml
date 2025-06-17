@@ -67,6 +67,7 @@ jobs:
           app-id: ${{ vars.WORKFLOW_WRITE_APP_ID }}
           private-key: ${{ secrets.WORKFLOW_WRITE_APP_PRIVATE_KEY }}
           owner: AcmeTickets  # Organization name
+          repositories: HumanResources
 
       - name: Debug token permissions
         env:
