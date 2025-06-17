@@ -21,15 +21,6 @@ find . -type f \( -name "*.cs" -o -name "*.csproj" -o -name "*.json" -o -name "*
     -e "s/{{msg_port}}/$MSG_PORT/g" \
     {} +
 
-# 2. Rename folders and subfolders (example for src only, adjust as needed)
-cd src
-for d in Application Domain Infrastructure InternalContracts Message Test.Mocks Test.UnitTests; do
-  if [ -d "$d" ]; then
-    mv "$d" "${DOMAIN_NAME}${d/Application/}Application"
-  fi
-done
-cd ..
-
 # 3. Rename solution and project files if needed
 solution_file=$(find . -maxdepth 1 -name "*.sln" | head -n 1)
 if [[ -n "$solution_file" ]]; then
@@ -39,13 +30,6 @@ if [[ -n "$solution_file" ]]; then
   fi
 fi
 
-# 4. Rename project files inside src
-find ./src -name "*{{DomainName}}*.csproj" | while read -r proj; do
-  new_proj_name=$(echo "$proj" | sed "s/{{DomainName}}/$DOMAIN_NAME/g")
-  if [[ "$proj" != "$new_proj_name" ]]; then
-    mv "$proj" "$new_proj_name"
-  fi
-done
 
 # 5. Create appsettings.Development.json in each project folder if it doesn't exist, using appsettings.json as a template
 for folder in ./src/Api ./src/App ./src/Message; do
