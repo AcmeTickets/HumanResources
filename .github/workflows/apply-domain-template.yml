@@ -60,6 +60,11 @@ jobs:
       - name: Build solution
         run: dotnet build --configuration Release --no-restore
 
+      - name: Debug variables and secrets
+        run: |
+          echo "App ID set: ${{ vars.WORKFLOW_WRITE_APP_ID != '' }}"
+          echo "Private key set: ${{ secrets.WORKFLOW_WRITE_APP_PRIVATE_KEY != '' }}"
+          
       - name: Generate GitHub App Token
         id: generate-token
         uses: actions/create-github-app-token@v2
