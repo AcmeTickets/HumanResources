@@ -65,25 +65,23 @@ jobs:
           echo "App ID set: ${{ vars.WORKFLOW_WRITE_APP_ID != '' }}"
           echo "Private key set: ${{ secrets.WORKFLOW_WRITE_APP_PRIVATE_KEY != '' }}"
           
-      - name: Generate GitHub App Token
-        id: generate-token
-        uses: actions/create-github-app-token@v2
+      - name: Get GitHub App Token
+        id: app-token
+        uses: tibdex/github-app-token@v2
         with:
-          app-id: ${{ vars.WORKFLOW_WRITE_APP_ID }}
-          private-key: ${{ secrets.WORKFLOW_WRITE_APP_PRIVATE_KEY }}
-          owner: AcmeTickets  # Organization name
-          repositories: HumanResources
+          app_id: ${{ vars.WORKFLOW_WRITE_APP_ID }}
+          private_key: ${{ secrets.WORKFLOW_WRITE_APP_PRIVATE_KEY }}
 
       - name: Debug token permissions
         env:
-          APP_TOKEN: ${{ steps.generate-token.outputs.token }}
+          APP_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
           curl -s -H "Authorization: Bearer $APP_TOKEN" -H "Accept: application/vnd.github.v3+json" \
           https://api.github.com/repos/AcmeTickets/HumanResources | jq .permissions
     
       - name: Commit and push changes
         env:
-          APP_TOKEN: ${{ steps.generate-token.outputs.token }}
+          APP_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
