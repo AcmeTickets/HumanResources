@@ -1,0 +1,135 @@
+name: SecurityTest
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  packages: read
+
+jobs:
+  apply-template:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Debug variables and secrets
+        run: |
+          echo "App ID set: ${{ vars.WORKFLOW_WRITE_APP_ID != '' }}"
+          echo "Private key set: ${{ secrets.WORKFLOW_WRITE_APP_PRIVATE_KEY != '' }}"
+          
+      - name: Get GitHub App Token
+        id: app-token
+        uses: tibdex/github-app-token@v2
+        with:
+          app_id: ${{ vars.WORKFLOW_WRITE_APP_ID }}
+          private_key: ${{ secrets.WORKFLOW_WRITE_APP_PRIVATE_KEY }}
+          permissions: >-
+            contents:write,
+            metadata:read,
+            packages:read,
+            actions:write
+
+      - name: Debug App Installation Info
+        env:
+          APP_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          echo "=== Getting App Installation Info ==="
+          curl -s -H "Authorization: Bearer $APP_TOKEN" -H "Accept: application/vnd.github.v3+json" \
+          https://api.github.com/app/installations | jq '.'
+          
+      - name: Debug Installation Repositories
+        env:
+          APP_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          echo "=== Getting Installation Repositories ==="
+          curl -s -H "Authorization: Bearer $APP_TOKEN" -H "Accept: application/vnd.github.v3+json" \
+          https://api.github.com/installation/repositories | jq '.'
+
+      - name: Debug token permissions
+        env:
+          APP_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          echo "=== Repository Permissions Check ==="
+          curl -s -H "Authorization: Bearer $APP_TOKEN" -H "Accept: application/vnd.github.v3+json" \
+          https://api.github.com/repos/AcmeTickets/HumanResources | jq '.permissions // "No permissions field found"'
+          
+          echo "=== User Info ==="
+          curl -s -H "Authorization: Bearer $APP_TOKEN" -H "Accept: application/vnd.github.v3+json" \
+          https://api.github.com/user | jq '.'
+          
+          echo "=== Testing Read Access ==="
+          curl -s -H "Authorization: Bearer $APP_TOKEN" -H "Accept: application/vnd.github.v3+json" \
+          https://api.github.com/repos/AcmeTickets/HumanResources/contents/README.md | jq '.sha // "File not found"'
+          
+      - name: Test Workflow Write Operation
+        env:
+          APP_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          echo "=== Testing Workflow Folder Write Operation ==="
+          
+          # Create a simple test workflow file content (base64 encoded)
+          WORKFLOW_CONTENT=$(cat << 'EOF' | base64 -w 0
+          name: Test Workflow Created by App
+          
+          on:
+            workflow_dispatch:
+          
+          jobs:
+            test:
+              runs-on: ubuntu-latest
+              steps:
+                - name: Test step
+                  run: echo "This workflow was created by GitHub App"
+          EOF
+          )
+          
+          echo "Attempting to create test workflow file..."
+          
+          # Try to create a test workflow file in .github/workflows/
+          RESPONSE=$(curl -s -w "\nHTTP_STATUS:%{http_code}" -X PUT \
+          -H "Authorization: Bearer $APP_TOKEN" \
+          -H "Accept: application/vnd.github.v3+json" \
+          -H "Content-Type: application/json" \
+          -d "{\"message\":\"Test workflow creation from GitHub App\",\"content\":\"$WORKFLOW_CONTENT\",\"branch\":\"main\"}" \
+          https://api.github.com/repos/AcmeTickets/HumanResources/contents/.github/workflows/test-app-created-workflow.yml)
+          
+          HTTP_STATUS=$(echo "$RESPONSE" | grep "HTTP_STATUS" | cut -d: -f2)
+          RESPONSE_BODY=$(echo "$RESPONSE" | sed '/HTTP_STATUS/d')
+          
+          echo "HTTP Status: $HTTP_STATUS"
+          echo "Response Body:"
+          echo "$RESPONSE_BODY" | jq '.' 2>/dev/null || echo "$RESPONSE_BODY"
+          
+          if [ "$HTTP_STATUS" = "201" ]; then
+            echo "✅ SUCCESS: Workflow file created successfully!"
+            echo "The GitHub App has proper permissions to write to .github/workflows/"
+          elif [ "$HTTP_STATUS" = "422" ]; then
+            echo "⚠️  File might already exist, trying to update it..."
+            
+            # Get the current file SHA for update
+            SHA_RESPONSE=$(curl -s -H "Authorization: Bearer $APP_TOKEN" \
+            https://api.github.com/repos/AcmeTickets/HumanResources/contents/.github/workflows/test-app-created-workflow.yml)
+            
+            FILE_SHA=$(echo "$SHA_RESPONSE" | jq -r '.sha // "not_found"')
+            
+            if [ "$FILE_SHA" != "not_found" ]; then
+              echo "Found existing file with SHA: $FILE_SHA"
+              UPDATE_RESPONSE=$(curl -s -w "\nHTTP_STATUS:%{http_code}" -X PUT \
+              -H "Authorization: Bearer $APP_TOKEN" \
+              -H "Accept: application/vnd.github.v3+json" \
+              -H "Content-Type: application/json" \
+              -d "{\"message\":\"Update test workflow from GitHub App\",\"content\":\"$WORKFLOW_CONTENT\",\"branch\":\"main\",\"sha\":\"$FILE_SHA\"}" \
+              https://api.github.com/repos/AcmeTickets/HumanResources/contents/.github/workflows/test-app-created-workflow.yml)
+              
+              UPDATE_STATUS=$(echo "$UPDATE_RESPONSE" | grep "HTTP_STATUS" | cut -d: -f2)
+              echo "Update HTTP Status: $UPDATE_STATUS"
+              
+              if [ "$UPDATE_STATUS" = "200" ]; then
+                echo "✅ SUCCESS: Workflow file updated successfully!"
+              else
+                echo "❌ FAILED: Could not update workflow file"
+              fi
+            fi
+          else
+            echo "❌ FAILED: Could not create workflow file"
+            echo "This indicates the GitHub App may not have proper permissions for .github/workflows/"
+          fi
