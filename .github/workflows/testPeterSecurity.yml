@@ -1,4 +1,4 @@
-name: SecurityTest
+name: Peter Security Test
 
 on:
   workflow_dispatch:
@@ -18,11 +18,11 @@ jobs:
      
       - name: Get GitHub App Token
         id: app-token
-        uses: tibdex/github-app-token@v2
+        uses: peter-murray/workflow-application-token-action@v3
         with:
-          app_id: ${{ vars.WORKFLOW_WRITE_APP_ID }}
-          private_key: ${{ secrets.WORKFLOW_WRITE_APP_PRIVATE_KEY }}
-          permissions: '{"contents": "write", "metadata": "read", "packages": "read"}'
+          application_id: ${{ vars.WORKFLOW_WRITE_APP_ID }}
+          application_private_key: ${{ secrets.WORKFLOW_WRITE_APP_PRIVATE_KEY }}
+          permissions: "contents:write,metadata:read,packages:read"
 
       - name: Debug App Installation Info
         env:
@@ -64,7 +64,7 @@ jobs:
           
           # Create a simple test workflow file content (base64 encoded)
           WORKFLOW_CONTENT=$(cat << 'EOF' | base64 -w 0
-          name: Test Workflow Created by App
+          name: Test Workflow Created by Peter App
           
           on:
             workflow_dispatch:
@@ -74,7 +74,7 @@ jobs:
               runs-on: ubuntu-latest
               steps:
                 - name: Test step
-                  run: echo "This workflow was created by GitHub App"
+                  run: echo "This workflow was created by GitHub App via Peter Murray action"
           EOF
           )
           
@@ -85,8 +85,8 @@ jobs:
           -H "Authorization: Bearer $APP_TOKEN" \
           -H "Accept: application/vnd.github.v3+json" \
           -H "Content-Type: application/json" \
-          -d "{\"message\":\"Test workflow creation from GitHub App\",\"content\":\"$WORKFLOW_CONTENT\",\"branch\":\"main\"}" \
-          https://api.github.com/repos/AcmeTickets/HumanResources/contents/.github/workflows/test-app-created-workflow.yml)
+          -d "{\"message\":\"Test workflow creation from GitHub App (Peter Murray)\",\"content\":\"$WORKFLOW_CONTENT\",\"branch\":\"main\"}" \
+          https://api.github.com/repos/AcmeTickets/HumanResources/contents/.github/workflows/test-peter-app-created-workflow.yml)
           
           HTTP_STATUS=$(echo "$RESPONSE" | grep "HTTP_STATUS" | cut -d: -f2)
           RESPONSE_BODY=$(echo "$RESPONSE" | sed '/HTTP_STATUS/d')
@@ -103,7 +103,7 @@ jobs:
             
             # Get the current file SHA for update
             SHA_RESPONSE=$(curl -s -H "Authorization: Bearer $APP_TOKEN" \
-            https://api.github.com/repos/AcmeTickets/HumanResources/contents/.github/workflows/test-app-created-workflow.yml)
+            https://api.github.com/repos/AcmeTickets/HumanResources/contents/.github/workflows/test-peter-app-created-workflow.yml)
             
             FILE_SHA=$(echo "$SHA_RESPONSE" | jq -r '.sha // "not_found"')
             
@@ -113,8 +113,8 @@ jobs:
               -H "Authorization: Bearer $APP_TOKEN" \
               -H "Accept: application/vnd.github.v3+json" \
               -H "Content-Type: application/json" \
-              -d "{\"message\":\"Update test workflow from GitHub App\",\"content\":\"$WORKFLOW_CONTENT\",\"branch\":\"main\",\"sha\":\"$FILE_SHA\"}" \
-              https://api.github.com/repos/AcmeTickets/HumanResources/contents/.github/workflows/test-app-created-workflow.yml)
+              -d "{\"message\":\"Update test workflow from GitHub App (Peter Murray)\",\"content\":\"$WORKFLOW_CONTENT\",\"branch\":\"main\",\"sha\":\"$FILE_SHA\"}" \
+              https://api.github.com/repos/AcmeTickets/HumanResources/contents/.github/workflows/test-peter-app-created-workflow.yml)
               
               UPDATE_STATUS=$(echo "$UPDATE_RESPONSE" | grep "HTTP_STATUS" | cut -d: -f2)
               echo "Update HTTP Status: $UPDATE_STATUS"
