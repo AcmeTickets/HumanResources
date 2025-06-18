@@ -14,19 +14,13 @@ jobs:
       - name: Debug variables and secrets
         run: |
           echo "App ID set: ${{ vars.WORKFLOW_WRITE_APP_ID != '' }}"
-          echo "Private key set: ${{ secrets.WORKFLOW_WRITE_APP_PRIVATE_KEY != '' }}"
-          
-      - name: Get GitHub App Token
+          echo "Private key set: ${{ secrets.WORKFLOW_WRITE_APP_PRIVATE_KEY != '' }}"      - name: Get GitHub App Token
         id: app-token
         uses: tibdex/github-app-token@v2
         with:
           app_id: ${{ vars.WORKFLOW_WRITE_APP_ID }}
           private_key: ${{ secrets.WORKFLOW_WRITE_APP_PRIVATE_KEY }}
-          permissions: >-
-            contents:write,
-            metadata:read,
-            packages:read,
-            actions:write
+          permissions: '{"contents": "write", "metadata": "read", "packages": "read", "actions": "write"}'
 
       - name: Debug App Installation Info
         env:
