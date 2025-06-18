@@ -24,6 +24,19 @@ jobs:
           application_private_key: ${{ secrets.WORKFLOW_WRITE_APP_PRIVATE_KEY }}
           permissions: "contents:write,metadata:read,packages:read,workflows:write"
 
+      - name: Debug Token Status
+        run: |
+          echo "=== Token Generation Debug ==="
+          echo "Token exists: ${{ steps.app-token.outputs.token != '' }}"
+          echo "Token length: ${#APP_TOKEN}"
+          echo "Token starts with: ${APP_TOKEN:0:20}..."
+          if [ -z "$APP_TOKEN" ]; then
+            echo "❌ ERROR: Token is empty!"
+            exit 1
+          fi
+        env:
+          APP_TOKEN: ${{ steps.app-token.outputs.token }}
+
       - name: Debug App Installation Info
         env:
           APP_TOKEN: ${{ steps.app-token.outputs.token }}
