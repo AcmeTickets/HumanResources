@@ -1,0 +1,11 @@
+name: Test Workflow Created by Peter App
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test step
+        run: echo "This workflow was created by GitHub App via Peter Murray action"
