@@ -12,8 +12,10 @@ if [[ -z "$DOMAIN_NAME" || -z "$DOMAIN_SHORT_NAME" ]]; then
   exit 1
 fi
 
-# 1. Replace template variables in all files (excluding this script)
-find . -type f \( -name "*.cs" -o -name "*.csproj" -o -name "*.json" -o -name "*.yml" -o -name "*.sln" -o -name "*.md" -o -name "*.xml" \) ! -name "$(basename "$0")" \
+# 1. Replace template variables in all files (excluding this script and CICD-Pipeline.yml)
+find . -type f \(
+  -name "*.cs" -o -name "*.csproj" -o -name "*.json" -o -name "*.yml" -o -name "*.sln" -o -name "*.md" -o -name "*.xml" \
+\) ! -name "$(basename "$0")" ! -name "CICD-Pipeline.yml" \
   -exec sed -i \
     -e "s/{{DomainName}}/$DOMAIN_NAME/g" \
     -e "s/{{DomainShortName}}/$DOMAIN_SHORT_NAME/g" \
