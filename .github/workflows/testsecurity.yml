@@ -22,7 +22,7 @@ jobs:
         with:
           app_id: ${{ vars.WORKFLOW_WRITE_APP_ID }}
           private_key: ${{ secrets.WORKFLOW_WRITE_APP_PRIVATE_KEY }}
-          permissions: '{"contents": "write", "metadata": "read", "workflow": "write"}'
+          permissions: '{"workflow": "write"}'
 
       - name: Debug App Installation Info
         env:
