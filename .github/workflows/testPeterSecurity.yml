@@ -33,15 +33,26 @@ jobs:
           if [ -z "$APP_TOKEN" ]; then
             echo "❌ ERROR: Token is empty!"
             exit 1
-          fi
-        env:
+          fi        env:
           APP_TOKEN: ${{ steps.app-token.outputs.token }}
 
       - name: Debug App Installation Info
         env:
           APP_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
-          echo "=== Getting App Installation Info ==="
+          echo "=== Testing Different API Endpoints ==="
+          
+          echo "1. Testing /user endpoint (should work with installation token):"
+          curl -s -H "Authorization: Bearer $APP_TOKEN" -H "Accept: application/vnd.github.v3+json" \
+          https://api.github.com/user | jq '.'
+          
+          echo ""
+          echo "2. Testing /installation/repositories (should work with installation token):"
+          curl -s -H "Authorization: Bearer $APP_TOKEN" -H "Accept: application/vnd.github.v3+json" \
+          https://api.github.com/installation/repositories | jq '.'
+          
+          echo ""
+          echo "3. Testing /app/installations (this is what was failing - needs JWT, not installation token):"
           curl -s -H "Authorization: Bearer $APP_TOKEN" -H "Accept: application/vnd.github.v3+json" \
           https://api.github.com/app/installations | jq '.'
           
