@@ -1,4 +1,4 @@
-name: Apply Domain Template
+name: SecurityTest
 
 on:
   workflow_dispatch:
