@@ -23,8 +23,8 @@ jobs:
     with:
       project_path: src/Api/Api.csproj
       dockerfile_path: src/Api/Dockerfile
-      image_name: ghcr.io/acmetickets/{{DomainShortName}}-api
-      target_port: {{api_port}}
+      image_name: ghcr.io/acmetickets/humanrsr-api
+      target_port: 5275
 
   deploy-api:
     needs: build-and-publish-api
@@ -40,11 +40,11 @@ jobs:
       - name: Fetch App Config Values
         id: appconfig
         run: |
-          az appconfig kv list --name "$APPCONFIG_NAME" --key "{{DomainShortName}}:*" --query "[].{key:key, value:value}" -o tsv > config.txt
+          az appconfig kv list --name "$APPCONFIG_NAME" --key "humanrsr:*" --query "[].{key:key, value:value}" -o tsv > config.txt
           echo "--- config.txt contents ---"
           cat config.txt
           while IFS=$'\t' read -r key value; do
-            envname=$(echo $key | sed "s/^{{DomainShortName}}://")
+            envname=$(echo $key | sed "s/^humanrsr://")
             echo "$envname=$value" >> $GITHUB_ENV
           done < config.txt
 
@@ -53,7 +53,7 @@ jobs:
           IMAGE: ${{ needs.build-and-publish-api.outputs.image_tag }}
         run: |
           az containerapp update \
-            --name {{DomainShortName}}-api \
+            --name humanrsr-api \
             --resource-group "$RESOURCE_GROUP" \
             --image "$IMAGE" \
             --set-env-vars AzureServiceBus__FullyQualifiedNamespace=$AzureServiceBus__FullyQualifiedNamespace CosmosDb__DatabaseName=$CosmosDb__DatabaseName CosmosDb__ContainerName=$CosmosDb__ContainerName CosmosDb__AccountEndpoint=$CosmosDb__AccountEndpoint
@@ -64,8 +64,8 @@ jobs:
     with:
       project_path: src/Message/Message.csproj
       dockerfile_path: src/Message/Dockerfile
-      image_name: ghcr.io/acmetickets/{{DomainShortName}}-msg
-      # If there is a port for message, use 5002
+      image_name: ghcr.io/acmetickets/humanrsr-msg
+      # If there is a port for message, use 5276
       # If there is a Cosmos DB account, use {{cosmosdb_account}}
 
   deploy-message:
@@ -82,11 +82,11 @@ jobs:
       - name: Fetch App Config Values
         id: appconfig
         run: |
-          az appconfig kv list --name "$APPCONFIG_NAME" --key "{{DomainShortName}}:*" --query "[].{key:key, value:value}" -o tsv > config.txt
+          az appconfig kv list --name "$APPCONFIG_NAME" --key "humanrsr:*" --query "[].{key:key, value:value}" -o tsv > config.txt
           echo "--- config.txt contents ---"
           cat config.txt
           while IFS=$'\t' read -r key value; do
-            envname=$(echo $key | sed "s/^{{DomainShortName}}://")
+            envname=$(echo $key | sed "s/^humanrsr://")
             echo "$envname=$value" >> $GITHUB_ENV
           done < config.txt
 
@@ -95,7 +95,7 @@ jobs:
           IMAGE: ${{ needs.build-and-publish-message.outputs.image_tag }}
         run: |
           az containerapp update \
-            --name {{DomainShortName}}-msg \
+            --name humanrsr-msg \
             --resource-group "$RESOURCE_GROUP" \
             --image "$IMAGE" \
             --set-env-vars AzureServiceBus__FullyQualifiedNamespace=$AzureServiceBus__FullyQualifiedNamespace CosmosDb__DatabaseName=$CosmosDb__DatabaseName CosmosDb__ContainerName=$CosmosDb__ContainerName CosmosDb__AccountEndpoint=$CosmosDb__AccountEndpoint
