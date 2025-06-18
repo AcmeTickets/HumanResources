@@ -1,4 +1,4 @@
-namespace AcmeTickets.{{DomainName}}.InternalContracts.Events
+namespace AcmeTickets.HumanResources.InternalContracts.Events
 {
     public class TicketRequestedEvent
     {

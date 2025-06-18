@@ -1,4 +1,4 @@
-namespace {{DomainName}}.Domain.Services;
+namespace HumanResources.Domain.Services;
 
 public interface IExternalService
 {

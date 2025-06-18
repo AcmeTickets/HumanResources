@@ -1,6 +1,6 @@
-using {{DomainName}}.Domain.Services;
+using HumanResources.Domain.Services;
 
-namespace {{DomainName}}.Test.Mocks.Fakes;
+namespace HumanResources.Test.Mocks.Fakes;
 
 public class FakeExternalService : IExternalService
 {

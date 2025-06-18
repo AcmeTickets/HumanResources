@@ -1,6 +1,6 @@
-using {{DomainName}}.Application.Services;
+using HumanResources.Application.Services;
 
-namespace {{DomainName}}.Test.Mocks.Fakes;
+namespace HumanResources.Test.Mocks.Fakes;
 
 public class FakeSenderService : ISenderService
 {

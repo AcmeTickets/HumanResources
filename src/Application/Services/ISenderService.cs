@@ -1,4 +1,4 @@
-namespace {{DomainName}}.Application.Services;
+namespace HumanResources.Application.Services;
 
 public interface ISenderService
 {

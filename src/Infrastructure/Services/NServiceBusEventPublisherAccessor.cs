@@ -1,6 +1,6 @@
-    using {{DomainName}}.Application.Services;
+    using HumanResources.Application.Services;
 
-namespace {{DomainName}}.Infrastructure.Services
+namespace HumanResources.Infrastructure.Services
 {
     public static class NServiceBusEventPublisherAccessor
     {

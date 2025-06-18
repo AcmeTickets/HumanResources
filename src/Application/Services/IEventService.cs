@@ -1,7 +1,7 @@
-using {{DomainName}}.Application.Commands;
-using {{DomainName}}.Application.DTOs;
+using HumanResources.Application.Commands;
+using HumanResources.Application.DTOs;
 
-namespace {{DomainName}}.Application.Services;
+namespace HumanResources.Application.Services;
 
 public interface IEventService
 {

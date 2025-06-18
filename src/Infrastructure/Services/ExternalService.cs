@@ -1,8 +1,8 @@
-using {{DomainName}}.Domain.Services;
+using HumanResources.Domain.Services;
 using System.Net.Http;
 using System.Text.Json;
 
-namespace {{DomainName}}.Infrastructure.Services;
+namespace HumanResources.Infrastructure.Services;
 
 public class ExternalService : IExternalService
 {

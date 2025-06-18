@@ -1,7 +1,7 @@
-using {{DomainName}}.Domain.Entities;
-using {{DomainName}}.Domain.Repositories;
+using HumanResources.Domain.Entities;
+using HumanResources.Domain.Repositories;
 
-namespace {{DomainName}}.Test.Mocks.Fakes;
+namespace HumanResources.Test.Mocks.Fakes;
 
 public class FakeEventRepository : IEventRepository
 {

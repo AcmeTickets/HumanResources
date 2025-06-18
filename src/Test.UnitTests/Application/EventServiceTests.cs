@@ -1,10 +1,10 @@
-using {{DomainName}}.Application.Commands;
-using {{DomainName}}.Application.Services;
-using {{DomainName}}.Domain.Events;
-using {{DomainName}}.Test.Mocks.Fakes;
+using HumanResources.Application.Commands;
+using HumanResources.Application.Services;
+using HumanResources.Domain.Events;
+using HumanResources.Test.Mocks.Fakes;
 using Xunit;
 
-namespace {{DomainName}}.Test.UnitTests.Application;
+namespace HumanResources.Test.UnitTests.Application;
 
 public class EventServiceTests
 {

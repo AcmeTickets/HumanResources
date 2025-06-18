@@ -1,4 +1,4 @@
-namespace {{DomainName}}.Domain.Entities
+namespace HumanResources.Domain.Entities
 {
     public enum EventStatus
     {

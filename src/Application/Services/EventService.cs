@@ -1,11 +1,11 @@
-using {{DomainName}}.Application.Commands;
-using {{DomainName}}.Application.DTOs;
-using {{DomainName}}.Domain.Repositories;
-using {{DomainName}}.Domain.Services;
-using {{DomainName}}.Domain.Entities;
-using {{DomainName}}.Domain.Events;
+using HumanResources.Application.Commands;
+using HumanResources.Application.DTOs;
+using HumanResources.Domain.Repositories;
+using HumanResources.Domain.Services;
+using HumanResources.Domain.Entities;
+using HumanResources.Domain.Events;
 
-namespace {{DomainName}}.Application.Services;
+namespace HumanResources.Application.Services;
 
 public class EventService : IEventService
 {
